@@ -29,7 +29,7 @@ services:
       JWT_SECRET_KEY: travel-diary-secret-key-2026-change-me-in-production
       UPLOAD_FOLDER: /app/uploads
     ports:
-      - "5000:5000"
+      - "5001:5000"
     volumes:
       - ./backend:/app
       - uploads_data:/app/uploads
@@ -46,7 +46,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:5000
+      NEXT_PUBLIC_API_URL: http://localhost:5001
     depends_on:
       - backend
 
