@@ -16,10 +16,15 @@
       "static/chunks/main-app.js",
       "static/chunks/app/register/page.js"
     ],
-    "/_not-found/page": [
+    "/diary/create/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/diary/create/page.js"
+    ],
+    "/destinations/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/destinations/page.js"
     ]
   }
 }

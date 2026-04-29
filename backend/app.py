@@ -42,7 +42,7 @@ def parse_date(date_str):
 
 def get_current_user():
     user_id = get_jwt_identity()
-    return User.query.get(user_id)
+    return User.query.get(int(user_id))
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -84,8 +84,8 @@ def login():
     if not user or not user.check_password(data.get('password', '')):
         return jsonify({'error': 'Invalid email or password'}), 401
     
-    access_token = create_access_token(identity=user.id)
-    refresh_token = create_refresh_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
     
     return jsonify({
         'message': 'Login successful',
@@ -98,7 +98,7 @@ def login():
 @jwt_required(refresh=True)
 def refresh():
     user_id = get_jwt_identity()
-    access_token = create_access_token(identity=user_id)
+    access_token = create_access_token(identity=str(user_id))
     return jsonify({'access_token': access_token}), 200
 
 @app.route('/api/auth/me', methods=['GET'])
