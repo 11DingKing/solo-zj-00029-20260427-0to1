@@ -19,7 +19,7 @@ class User(db.Model):
     
     diaries = db.relationship('Diary', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     likes = db.relationship('Like', backref='user', lazy='dynamic', cascade='all, delete-orphan')
-    comments = db.relationship('Comment', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    comments = db.relationship('Comment', foreign_keys='Comment.user_id', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
