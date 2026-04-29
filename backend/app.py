@@ -23,7 +23,7 @@ app.config['UPLOAD_FOLDER'] = os.environ.get('UPLOAD_FOLDER', 'uploads')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = 2592000
 
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins='*')
 jwt = JWTManager(app)
 db.init_app(app)
 

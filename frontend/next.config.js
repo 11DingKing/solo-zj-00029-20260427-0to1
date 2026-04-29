@@ -3,18 +3,24 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '5000',
-        pathname: '/api/uploads/**',
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+        pathname: "/api/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5001",
+        pathname: "/api/uploads/**",
       },
     ],
   },
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'http://backend:5000/api/:path*',
+        source: "/api/:path*",
+        destination: "http://backend:5000/api/:path*",
       },
     ];
   },
