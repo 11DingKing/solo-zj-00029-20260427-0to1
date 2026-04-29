@@ -1,15 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { 
-  Plus, Minus, Upload, MapPin, Calendar, Save, Loader2, 
-  Image as ImageIcon, Trash2, ChevronUp, ChevronDown
-} from 'lucide-react';
-import type { Tag } from '@/types';
-import { diaryApi, tagsApi, uploadApi, getImageUrl } from '@/lib/api';
-import { useAuth } from '@/contexts/AuthContext';
-import dynamic from 'next/dynamic';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Plus,
+  Minus,
+  Upload,
+  MapPin,
+  Calendar,
+  Save,
+  Loader2,
+  Image as ImageIcon,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
+import type { Tag } from "@/types";
+import { diaryApi, nodeApi, tagsApi, uploadApi, getImageUrl } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import dynamic from "next/dynamic";
 
 interface NodeForm {
   id?: number;
@@ -27,11 +36,11 @@ export default function CreateDiaryPage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
 
-  const [title, setTitle] = useState('');
-  const [destinationCity, setDestinationCity] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [destinationCity, setDestinationCity] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState<string | null>(null);
@@ -43,11 +52,11 @@ export default function CreateDiaryPage() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push("/login");
     }
   }, [user, authLoading, router]);
 
@@ -61,7 +70,7 @@ export default function CreateDiaryPage() {
       const response = await tagsApi.getAll();
       setTags(response.data);
     } catch (err) {
-      console.error('Failed to fetch tags:', err);
+      console.error("Failed to fetch tags:", err);
     } finally {
       setLoading(false);
     }
@@ -69,12 +78,12 @@ export default function CreateDiaryPage() {
 
   const addNode = () => {
     const newNode: NodeForm = {
-      node_date: startDate || new Date().toISOString().split('T')[0],
+      node_date: startDate || new Date().toISOString().split("T")[0],
       node_order: nodes.length,
-      location_name: '',
-      latitude: '',
-      longitude: '',
-      description: '',
+      location_name: "",
+      latitude: "",
+      longitude: "",
+      description: "",
       images: [],
       imageFiles: [],
     };
@@ -98,7 +107,10 @@ export default function CreateDiaryPage() {
     setNodes(newNodes);
   };
 
-  const handleNodeImageSelect = async (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNodeImageSelect = async (
+    index: number,
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -108,14 +120,14 @@ export default function CreateDiaryPage() {
         const response = await uploadApi.uploadImage(files[i]);
         newImages.push(response.data.url);
       }
-      
+
       const node = nodes[index];
       updateNode(index, {
         images: [...node.images, ...newImages],
       });
     } catch (err) {
-      console.error('Failed to upload image:', err);
-      setError('图片上传失败');
+      console.error("Failed to upload image:", err);
+      setError("图片上传失败");
     }
   };
 
@@ -126,7 +138,9 @@ export default function CreateDiaryPage() {
     });
   };
 
-  const handleCoverImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -134,35 +148,37 @@ export default function CreateDiaryPage() {
       const response = await uploadApi.uploadImage(files[0]);
       setCoverImage(response.data.url);
     } catch (err) {
-      console.error('Failed to upload cover image:', err);
-      setError('封面图上传失败');
+      console.error("Failed to upload cover image:", err);
+      setError("封面图上传失败");
     }
   };
 
   const toggleTag = (tagName: string) => {
     setSelectedTags((prev) =>
-      prev.includes(tagName) ? prev.filter((t) => t !== tagName) : [...prev, tagName]
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName],
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!title.trim()) {
-      setError('请输入日记标题');
+      setError("请输入日记标题");
       return;
     }
     if (!destinationCity.trim()) {
-      setError('请输入目的地城市');
+      setError("请输入目的地城市");
       return;
     }
     if (!startDate || !endDate) {
-      setError('请选择出发和结束日期');
+      setError("请选择出发和结束日期");
       return;
     }
     if (new Date(endDate) < new Date(startDate)) {
-      setError('结束日期不能早于出发日期');
+      setError("结束日期不能早于出发日期");
       return;
     }
 
@@ -188,7 +204,7 @@ export default function CreateDiaryPage() {
       for (const node of nodes) {
         if (!node.location_name.trim()) continue;
 
-        const nodeResponse = await diaryApi.nodes?.createNode?.(diaryId, {
+        const nodeResponse = await nodeApi.createNode(diaryId, {
           node_date: node.node_date,
           node_order: node.node_order,
           location_name: node.location_name.trim(),
@@ -200,7 +216,7 @@ export default function CreateDiaryPage() {
 
       router.push(`/diary/${diaryId}`);
     } catch (err: any) {
-      setError(err.response?.data?.error || '创建日记失败，请稍后重试');
+      setError(err.response?.data?.error || "创建日记失败，请稍后重试");
     } finally {
       setSubmitting(false);
     }
@@ -222,7 +238,9 @@ export default function CreateDiaryPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">创建新旅行日记</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            创建新旅行日记
+          </h1>
           <p className="text-gray-500">记录你的精彩旅程</p>
         </div>
 
@@ -234,8 +252,10 @@ export default function CreateDiaryPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">基本信息</h2>
-            
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              基本信息
+            </h2>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -278,8 +298,8 @@ export default function CreateDiaryPage() {
                       onClick={() => toggleTag(tag.name)}
                       className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
                         selectedTags.includes(tag.name)
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? "bg-primary-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       {tag.name_cn}
@@ -376,7 +396,9 @@ export default function CreateDiaryPage() {
                     onChange={(e) => setIsPublic(e.target.checked)}
                     className="w-4 h-4 text-primary-600 rounded"
                   />
-                  <span className="text-sm text-gray-700">公开这篇日记（其他用户可以看到）</span>
+                  <span className="text-sm text-gray-700">
+                    公开这篇日记（其他用户可以看到）
+                  </span>
                 </label>
               </div>
             </div>
@@ -399,7 +421,9 @@ export default function CreateDiaryPage() {
               <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
                 <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500">还没有添加日程节点</p>
-                <p className="text-gray-400 text-sm mt-1">点击上方"添加节点"按钮开始记录你的旅程</p>
+                <p className="text-gray-400 text-sm mt-1">
+                  点击上方"添加节点"按钮开始记录你的旅程
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -410,7 +434,9 @@ export default function CreateDiaryPage() {
                   >
                     <button
                       type="button"
-                      onClick={() => setExpandedNode(expandedNode === index ? null : index)}
+                      onClick={() =>
+                        setExpandedNode(expandedNode === index ? null : index)
+                      }
                       className="w-full px-4 py-3 flex items-center justify-between bg-gray-50 hover:bg-gray-100 transition-colors"
                     >
                       <div className="flex items-center space-x-3">
@@ -419,9 +445,11 @@ export default function CreateDiaryPage() {
                         </span>
                         <div className="text-left">
                           <p className="font-medium text-gray-900">
-                            {node.location_name || '未命名地点'}
+                            {node.location_name || "未命名地点"}
                           </p>
-                          <p className="text-sm text-gray-500">{node.node_date}</p>
+                          <p className="text-sm text-gray-500">
+                            {node.node_date}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -455,7 +483,11 @@ export default function CreateDiaryPage() {
                             <input
                               type="text"
                               value={node.location_name}
-                              onChange={(e) => updateNode(index, { location_name: e.target.value })}
+                              onChange={(e) =>
+                                updateNode(index, {
+                                  location_name: e.target.value,
+                                })
+                              }
                               placeholder="如：故宫博物院"
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             />
@@ -468,7 +500,9 @@ export default function CreateDiaryPage() {
                             <input
                               type="date"
                               value={node.node_date}
-                              onChange={(e) => updateNode(index, { node_date: e.target.value })}
+                              onChange={(e) =>
+                                updateNode(index, { node_date: e.target.value })
+                              }
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             />
                           </div>
@@ -481,7 +515,9 @@ export default function CreateDiaryPage() {
                               type="number"
                               step="any"
                               value={node.latitude}
-                              onChange={(e) => updateNode(index, { latitude: e.target.value })}
+                              onChange={(e) =>
+                                updateNode(index, { latitude: e.target.value })
+                              }
                               placeholder="如：39.9167"
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             />
@@ -495,7 +531,9 @@ export default function CreateDiaryPage() {
                               type="number"
                               step="any"
                               value={node.longitude}
-                              onChange={(e) => updateNode(index, { longitude: e.target.value })}
+                              onChange={(e) =>
+                                updateNode(index, { longitude: e.target.value })
+                              }
                               placeholder="如：116.4167"
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                             />
@@ -507,7 +545,11 @@ export default function CreateDiaryPage() {
                             </label>
                             <textarea
                               value={node.description}
-                              onChange={(e) => updateNode(index, { description: e.target.value })}
+                              onChange={(e) =>
+                                updateNode(index, {
+                                  description: e.target.value,
+                                })
+                              }
                               placeholder="描述这个地点发生了什么..."
                               rows={3}
                               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
@@ -528,7 +570,9 @@ export default function CreateDiaryPage() {
                                   />
                                   <button
                                     type="button"
-                                    onClick={() => removeNodeImage(index, imgIndex)}
+                                    onClick={() =>
+                                      removeNodeImage(index, imgIndex)
+                                    }
                                     className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center"
                                   >
                                     <Trash2 className="w-3 h-3" />
@@ -538,13 +582,17 @@ export default function CreateDiaryPage() {
                               <label className="w-24 h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary-500 transition-colors">
                                 <div className="text-center">
                                   <ImageIcon className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                                  <span className="text-xs text-gray-500">添加图片</span>
+                                  <span className="text-xs text-gray-500">
+                                    添加图片
+                                  </span>
                                 </div>
                                 <input
                                   type="file"
                                   accept="image/*"
                                   multiple
-                                  onChange={(e) => handleNodeImageSelect(index, e)}
+                                  onChange={(e) =>
+                                    handleNodeImageSelect(index, e)
+                                  }
                                   className="hidden"
                                 />
                               </label>

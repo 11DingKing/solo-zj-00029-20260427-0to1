@@ -49,12 +49,11 @@ CREATE TABLE IF NOT EXISTS diaries (
 );
 
 CREATE TABLE IF NOT EXISTS diary_tags (
-    id INT AUTO_INCREMENT PRIMARY KEY,
     diary_id INT NOT NULL,
     tag_id INT NOT NULL,
+    PRIMARY KEY (diary_id, tag_id),
     FOREIGN KEY (diary_id) REFERENCES diaries(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_diary_tag (diary_id, tag_id)
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS schedule_nodes (

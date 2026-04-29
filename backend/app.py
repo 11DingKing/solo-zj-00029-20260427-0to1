@@ -236,7 +236,20 @@ def get_diaries():
     per_page = request.args.get('per_page', 20, type=int)
     search = request.args.get('search', '')
     destination = request.args.get('destination', '')
-    tags = request.args.getlist('tags')
+    
+    tags_raw = request.args.getlist('tags')
+    tags = []
+    for tag_str in tags_raw:
+        if ',' in tag_str:
+            tags.extend([t.strip() for t in tag_str.split(',') if t.strip()])
+        else:
+            if tag_str.strip():
+                tags.append(tag_str.strip())
+    
+    tags_param = request.args.get('tags', '')
+    if tags_param and ',' in tags_param and not tags:
+        tags = [t.strip() for t in tags_param.split(',') if t.strip()]
+    
     sort_by = request.args.get('sort_by', 'created_at')
     
     query = Diary.query.filter_by(is_public=True)
